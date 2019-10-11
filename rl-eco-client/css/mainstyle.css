@@ -1,0 +1,29 @@
+#pnlMessages {
+	display: inline-block;
+	width: 100%;
+	height: 30vh;
+	min-height: 30vh;
+	overflow-y : auto;
+}
+#listPlayers {
+	overflow-y: auto
+}
+#row1 {
+	height: 70vh;
+}
+#row2 {
+	display: block;
+	background-color: teal;
+	height: 30vh;
+	min-height: 30vh
+}
+#pnlGame {
+	display: block;
+	height: 70vh;
+}
+#pnlLogin {
+	width: 50%;
+	position: absolute;
+	top: 25%;
+	left: 25%;
+}

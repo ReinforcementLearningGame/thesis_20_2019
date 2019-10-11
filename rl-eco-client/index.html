@@ -1,0 +1,270 @@
+<!DOCTYPE HTML>
+<html lang="en">
+    <head>
+        <title>RL Games ecosystem client</title>
+        <meta charset="utf-8">
+        <!-- Needed for bootstrap -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+        <!-- Needed for AngularJS -->
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+
+        <!-- Needed for WebSocket with AngularJS -->
+        <script src="https://cdn.rawgit.com/AngularClass/angular-websocket/v2.0.0/dist/angular-websocket.min.js"></script>
+        
+        <!--  GVAS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/css/bootstrap-select.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/bootstrap-select.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.2/js/i18n/defaults-*.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="./css/style.css">
+    </head>
+    <body ng-cloak ng-app = "rlEcoClient" ng-controller = "ConnectionController as connection" ng-init = "connection.newGameForm=false ; connection.newRepeatedGameForm=false ">
+        <div class="container-fluid" id="row1Container">
+            <div class="row" id="row1">
+                <div class="col-sm-9" id="pnlMain">
+                    <div class = "panel panel-default" id="pnlMainInner">
+                        <div class="panel-body" style="overflow-y: scroll" ng-controller = "GameManagementController as gameMngController" id="pnlMainBody">
+                            <div id="gamesList" ng-controller = "GamesListController as gamesListController" ng-show = "connection.data.state == 'LOGGED_IN'">
+                                <h3>Available Games</h3>
+                                <ul class="list-group" id="listGames">
+                                    <li ng-repeat = "game in connection.data.gamesList" ng-class="(game.liClass == null) && 'list-group-item' || game.liClass" ng-click="gamesListController.selectGame(game)">
+                                        <span>{{game.whitePlayer.name + " vs " + ((game.blackPlayer.name == null) && "none" || game.blackPlayer.name)}}</span>
+                                        <span>{{game.boardSize}}&times;{{game.boardSize}}({{game.baseSize}}&times;{{game.baseSize}})<i class="glyphicon glyphicon-pawn"></i>{{game.numberOfPawns}}</span>
+                                        <span>{{game.status}}</span>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnJoinWhitePlayer"
+                                            ng-show="game.selected && game.okToJoinWhitePlayer"
+                                            ng-click = "gameMngController.joinGame(game, 'WHITEPLAYER', false)">
+                                                Join White Team
+                                        </button>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnJoinBlackPlayer"
+                                            ng-show="game.selected && game.okToJoinBlackPlayer"
+                                            ng-click = "gameMngController.joinGame(game, 'BLACKPLAYER', false)">
+                                                Join Black Team
+                                        </button>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnJoinWithAvatar"
+                                            ng-show="game.selected && game.okToJoinAsAvatar"
+                                            ng-click = "gameMngController.joinGame(game, 'BLACKPLAYER', true)">
+                                                Join As Avatar
+                                        </button>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnConfirmStartGame"
+                                            ng-show="game.selected && game.okToStart"
+                                            ng-click = "gameMngController.confirmStartGame(game.uid)">
+                                                Start
+                                        </button>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnSpectateGame"
+                                            ng-show="game.selected && game.okToSpectate"
+                                            ng-click = "gameMngController.joinGame(game, 'SPECTATOR', false)">
+                                                Spectate
+                                        </button>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnSpectateGameWithAvatar"
+                                            ng-show="game.selected && game.okToSpectateAsAvatar"
+                                            ng-click = "gameMngController.joinGame(game, 'SPECTATOR', true)">
+                                                Spectate As Avatar
+                                        </button>
+                                        <button
+                                            class="btn btn-default"
+                                            id="btnLeaveGame"
+                                            ng-show="game.selected && game.okToLeave"
+                                            ng-click = "gameMngController.leaveGame(game.uid)">
+                                                Leave
+                                        </button>
+                                    </li>
+
+                                </ul>
+
+                            </div>
+                            <div id="newGameData" ng-show = "connection.newGameForm == true">
+                                <div>
+                                    <h3>Create Game</h3>
+                                    <div class="input-group">
+                                        <input id="boardSize" type="number" class="form-control" name="boardSize" placeholder="Board Size" ng-model = "boardSize">
+                                    </div>
+                                    <div class="input-group">
+                                        <input id="baseSize" type="number" class="form-control" name="baseSize" placeholder="Base Size" ng-model = "baseSize">
+                                    </div>
+                                    <div class="input-group">
+                                        <input id="numberOfPawns" type="number" class="form-control" name="numberOfPawns" placeholder="Number of pawns" ng-model = "numberOfPawns">
+                                    </div>
+                                    <div ng-class="gameMngController.invitationCheckboxClass()">
+                                        <label><input type="checkbox" value="" ng-disabled = "gameMngController.invitationCheckboxClass() == 'checkbox disabled'" ng-model = "invitation">Invite Selected Player</label>
+                                    </div>
+                                    <button class="btn btn-default" id="btnCreateGame" ng-click="gameMngController.createGame(boardSize, baseSize, numberOfPawns, false, invitation); connection.newGameForm = false">
+                                        Create Game
+                                    </button>
+                                    <button class="btn btn-default" id="btnCreateGameAsAvatar" ng-show="gameMngController.okToCreateGameAsAvatar()" ng-click="gameMngController.createGame(boardSize, baseSize, numberOfPawns, true, false); connection.newGameForm = false">
+                                        Create Game As Avatar
+                                    </button>
+                                    <button class="btn btn-default" id="btnCreateGameCancel" ng-click="connection.newGameForm = false">
+                                        Cancel
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="newRepeatedGameData" ng-show = "connection.newRepeatedGameForm == true">
+                            	<h3>Create Repeated Game</h3>
+                            	<table class="table">
+                            		<tbody>
+                            			<tr>
+                            				<td>                            	
+				                                <div class="input-group">
+				                                	<input id="r_boardSize" type="number" class="form-control" name="boardSize" placeholder="Board Size" ng-model = "boardSize">
+				                                </div>
+				                                <div class="input-group">
+				                                	<input id="r_baseSize" type="number" class="form-control" name="baseSize" placeholder="Base Size" ng-model = "baseSize">
+				                                </div>
+				                                <div class="input-group">
+				                                	<input id="r_numberOfPawns" type="number" class="form-control" name="numberOfPawns" placeholder="Number of pawns" ng-model = "numberOfPawns">
+				                                </div>
+                                			</td>
+                                			<td>
+				                                <div class="form-group">
+													<select id="r_opponent" ng-model="opponent" ng-options="x.name for x in connection.data.playersList | filter: {connectionState: '!' + 'DISCONNECTED'}">
+														<option value="">.. Select Opponent </option>
+													</select>
+												</div>
+				                                <div class="input-group">
+				                                	<input id="r_numberOfGames" type="number" class="form-control" name="numberOfGames" placeholder="Number of Games" ng-model = "numberOfGames">
+				                                </div>
+                                			</td>
+                                		</tr>
+                                	</tbody>
+                                </table>
+                                
+                                <button class="btn btn-default" id="r_btnCreateGame" ng-click="gameMngController.createRepeatedGame(boardSize, baseSize, numberOfPawns, numberOfGames, opponent); connection.newRepeatedGameForm = false">
+                                	Create Game
+                                </button>
+                                <button class="btn btn-default" id="r_btnCreateGameCancel" ng-click="connection.newRepeatedGameForm = false">
+                                	Cancel
+                                </button>
+                                
+                            </div>
+                            <div id="pnlLogin" class = "panel panel-default" ng-show = "connection.data.state == 'CONNECTED'">
+                                <div class="panel-body">
+                                    <iframe name="tgt" style="display:none" src="javascript:void(0)"></iframe>
+                                    <form id = "loginFrm" target = "tgt" ng-controller = "LoginController as loginCtrl" method="post" action = "javascript:void(0)">
+                                        <h3>Login</h3>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                            <input id="username" type="text" class="form-control" name="username" placeholder="User Name" ng-model = "userName" autocomplete = "om">
+                                        </div>
+                                        <div class="input-group">
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                            <input id="password" type="password" class="form-control" name="password" placeholder="Password" ng-model = "password" autocomplete = "om">
+                                        </div>
+                                        <button class="btn btn-default" id="btnLogin" ng-click="loginCtrl.login(userName, password)">
+                                            Login
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            <div id="gameContent" ng-controller = "GameplayController as gameplayController">
+                                <table id="tblGameBoard" ng-show = "connection.data.state == 'IN_GAME'">
+                                    <!-- ng-style = "{'width': gameplayController.gameBoardWidth()}">-->
+                                    <tr ng-repeat="row in gameplayController.getBoard()">
+                                        <td ng-repeat="col in row track by $index" ng-click = "gameplayController.selectNextCell(col.xCoord, col.yCoord)" class = "boardTableCell" ng-style = "{'width': gameplayController.cellSizePercentage}">
+                                        <div ng-class = "col.cClass">
+                                            <div ng-class = "col.sClass">
+                                                <div ng-class = "col.pClass" ng-hide = "col.pawnId == null"></div>
+                                            </div>
+                                        </div></td>
+                                    </tr>
+                                </table>
+                                <div class="heightStuff" id="gamesCommands" ng-show = "(connection.data.state == 'LOGGED_IN' && (connection.newGameForm == false && connection.newRepeatedGameForm == false)) || connection.data.state == 'IN_GAME'">
+                                    <span ng-show = "connection.data.state == 'IN_GAME'">{{gameplayController.prompt()}}</span>
+                                    <button class="btn btn-default" id="btnConfirmMove" ng-click="gameplayController.confirmMove()" ng-show = "gameplayController.canConfirmMove()">
+                                        Confirm
+                                    </button>
+                                    <button class="btn btn-default" id="btnClearMove" ng-click="gameplayController.clearMove()" ng-show = "gameplayController.canClearMove()">
+                                        Clear
+                                    </button>
+                                    <button class="btn btn-default" id="btnLeaveGameInGame" ng-click="gameplayController.leaveGame()" ng-show = "connection.data.state == 'IN_GAME'">
+                                        Leave Game
+                                    </button>
+                                    <button class="btn btn-default" id="btnNewGame" ng-click="connection.newGameForm = true ; connection.newRepeatedGameForm = false" ng-show = "connection.data.state == 'LOGGED_IN'">
+                                        Create Game
+                                    </button>
+                                    <button class="btn btn-default" id="btnNewRepeatedGame" ng-click="connection.newRepeatedGameForm = true ; connection.newGameForm = false" ng-show = "connection.data.state == 'LOGGED_IN'">
+                                        Create Repeated Game
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3" id="pnlLists" ng-controller = "PlayersListController as playersListController">
+                    <ul class="list-group" id="listPlayers">
+                        <li class="list-group-item" ng-repeat = "player in connection.data.playersList | filter: {connectionState: '!' + 'DISCONNECTED'}" ng-class="playersListController.getLiClass(player)" ng-click="playersListController.togglePlayer(player)">
+                            {{player.name}} <span class="badge">{{player.score}}</span>
+                        </li>
+
+                    </ul>
+                </div>
+                <div class="col-sm-12" id="mesagesContainer">
+                    <div class = "panel panel-default">
+                        <div class="panel-body" id="pnlMessages">
+                            <div class="scrollDown" id = "receivedMessages">
+                                <span ng-repeat = "message in connection.data.messages track by $index"> 
+                                    <span ng-switch = "message.type"> 
+                                        <span ng-switch-when = "SYSTEM_INFO" class = "glyphicon glyphicon-info-sign"></span> 
+                                        <span ng-switch-when = "SYSTEM_ALERT" class = "glyphicon glyphicon-alert"></span> 
+                                        <span ng-switch-default class = "glyphicon glyphicon-alert" style = "visibility: hidden"></span> 
+                                    </span> 
+                                    <span ng-hide = "message.sender == null">
+                                        {{(message.sender.id == message.recipient.id ? "Me" : message.sender.name) + ": "}}
+                                    </span>
+                                    {{message.text}}<br/>
+                                </span>
+                            </div>
+                            <div id="messageTextContainer">
+                                <form ng-controller = "MessageController as messageCtrl">
+                                    <div class="col-xs-10" id="pnlMessageText">
+        
+                                        <input id="messageText" type="text" class="form-control" name="messageText" ng-model = "messageText">
+                                    </div>
+                                    <div class="col-xs-2" id="pnlMessageButton">
+                                        <button class="btn btn-default btn-block" id="btnShout" ng-click="messageCtrl.shout(messageText); messageText=''">
+                                            Shout
+                                        </button>
+        
+                                    </div>
+                                </form>
+                            </div>
+            
+                       </div>
+        
+                    </div>
+                </div>
+            </div>
+            <!-- <div class="row" id="row2">
+            </div> -->
+        </div>
+        <!-- <div class="container-fluid" id="row2Container">
+            <div class="row" id="row2">
+            </div>
+        </div> -->
+        <script src="./script/display.js"></script>
+        <script src="./script/app.js"></script>
+        <script src="./script/login.js"></script>
+        <script src="./script/connection.js"></script>
+        <script src="./script/message.js"></script>
+        <script src="./script/gameManagement.js"></script>
+        <script src="./script/gamesList.js"></script>
+        <script src="./script/gameplay.js"></script>
+        <script src="./script/playersList.js"></script>
+    </body>
+</html>

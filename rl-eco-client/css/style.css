@@ -1,0 +1,130 @@
+html, body, #row1, .panel-default, #pnlMain, #pnlMainBody, #gameContent, .panel-body {
+	height: 100%;
+}
+
+/*#gameContent{
+	height: 100%;
+	display: block;
+}*/
+
+#receivedMessages{
+	overflow-y: scroll;
+	height: 80%;
+}
+
+
+#row1Container {
+	height: 70%;
+} 
+
+#mesagesContainer {
+	height: 30%;
+}
+
+.boardTableCell {
+	position: relative;
+}
+
+.boardTableCell::after {
+  content: '';
+  display: block;
+  margin-top: 100%;
+}
+
+.gameBoardCellIsInWBase {
+	/*display: flex;
+	justify-content: center;
+	height: 40px;
+	width: 40px;*/
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgb(200,200,200);
+	border-bottom: 1px solid;
+	border-right: 1px solid;
+}
+
+.gameBoardCellIsInBBase {
+	/*display: flex;
+	justify-content: center;
+	height: 40px;
+	width: 40px;*/
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: rgb(100,100,100);
+	border-bottom: 1px solid;
+	border-right: 1px solid;
+}
+
+.gameBoardCellPlain {
+	/*display: flex;
+	justify-content: center;
+	height: 40px;
+	width: 40px;*/
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	border-bottom: 1px solid;
+	border-right: 1px solid;
+}
+
+.gameBoardCellSelected {
+	/*position: absolute;
+	top: 1;
+	bottom: 1;
+	left: 1;
+	right: 1;*/
+	height: 100%;
+	border: 1px solid red;
+}
+
+.gameBoardCellUnselected {
+	height: 100%;
+}
+
+.whitePawn{
+	/*display: inline-block;*/
+	height: 80%;
+	width: 80%;
+	/*margin: auto;*/
+	align-self: center;
+	border: 2px solid;
+	border-radius: 50%;
+	background-color: white;
+	display: block;
+	margin-top: 10%;
+	margin-left: 10%;
+}
+.blackPawn{
+	/*display: inline-block;*/
+	height: 80%;
+	width: 80%;
+	/*margin: auto;*/
+	align-self: center;
+	border: 2px solid;
+	border-radius: 50%;
+	background-color: black;
+	display: block;
+	margin-top: 10%;
+	margin-left: 10%;
+}
+#tblGameBoard {
+	/*table-layout: fixed;
+	width: 300px;
+	height: 300px;
+	width : 65vmin;*/
+	border-top: 1px solid;
+	border-left: 1px solid;
+}
+
+/*.boardTableCell{
+	width: 20px;
+	height: 20px;
+}*/

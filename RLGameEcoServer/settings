@@ -1,0 +1,6 @@
+#Application Settings
+Debug=false
+Port=33313
+dbLocation=jdbc:mysql://localhost/rl_game_eco_server?autoReconnect=true
+userName=server_user
+password=myPassword
